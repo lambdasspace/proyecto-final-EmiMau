@@ -18,7 +18,7 @@ type Parser = Parsec Void String
 data Expr
   = Var Char
   | Abs {var :: Expr, cuerpo :: String}
-  | App {var :: Expr, cuerpo :: String, apli :: Expr}
+  | App {var :: Expr, cuerpo :: String, apli :: Expr, rest :: String}
   deriving (Eq, Ord, Show)
 
 sust :: Char -> String -> String -> String
@@ -28,27 +28,27 @@ sust c a (x:xs) = if c == x then a ++ sust c a xs else (:) x $ sust c a xs
 pApp :: Parser Expr
 pApp = do 
   void (string "(\\")
-  vDeLigado <- M.some alphaNumChar
+  vDeLigado <- alphaNumChar <?> "Error: Identificador de más de un character"
   void (char '.')
   cuerpo <- M.some alphaNumChar
   void (char ')')
-  space1 <?> "Tienes que separar tus términos por al menos un espacio"
-  apli <- try <|> pApp <|> pAbs <|> pVar
-  return (App (Var $ head vDeLigado) cuerpo apli)
+  space1 <?> "Error: Tienes que separar tus términos por al menos un espacio"
+  apli <- try pApp <|> pAbs <|> pVar <?> "Fallo parser"
+  return (App (Var vDeLigado) cuerpo apli "ola")
 
 pAbs :: Parser Expr
 pAbs = do 
   void (string "\\")
-  vDeLigado <- M.some alphaNumChar
-  void (char '.')
-  cuerpo <- M.some alphaNumChar <?> "Estás usando characteres especiales en el cuerpo"
-  return (Abs (Var $ head vDeLigado) cuerpo)
+  vDeLigado <- alphaNumChar
+  void (char '.') <?> "Error: Identificador de más de un character"
+  cuerpo <- M.some alphaNumChar <?> "Error: Estás usando characteres especiales en el cuerpo"
+  return (Abs (Var vDeLigado) cuerpo)
 
 pVar :: Parser Expr
 pVar = do
-  void (string "")
-  var <- M.some alphaNumChar
-  return (Var $ head var)
+  void (string "") <?> "Error: Identificador de más de un character"
+  var <- alphaNumChar
+  return (Var var)
 
 
 
