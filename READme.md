@@ -3,6 +3,8 @@
 ### Especificación:
 La intención del proyecto es generar un modelo del Cálculo lambda que nos permita poner abstracciones, aplicaciones y variables utilizando una sintaxis muy similar a aquella que utiliza esta forma teórica de cómputo. La idea es que si funciona en sus formas más básicas después sea posible expandirlo a las variantes existente del cálculo, como son aquellas que actúan con tipado o incluso variables de tipo. Esto se daría si no termina siendo más complicado de lo originalmente planeado.
 
+El objetivo es que dada una abstracción lambda, o una serie de abstracciones lambadas, el programa se encargue de hacer todas las beta reducciones posibles.
+
 La sintaxis que tengo planeado utilizar es:
 ```
 (\\x.x) (\\x.x) <- para aplicaciones
@@ -10,6 +12,6 @@ La sintaxis que tengo planeado utilizar es:
 x               <- para variables
 ```
 
-Las variables sólo pueden ser una única letra, de manera que si tenemos más de una letra el parser se encargará de solamente procesar el caracter inicial de aquella sucesión que hubera elegido como identificador.
+Las variables sólo pueden ser una única letra, de manera que si tenemos más de una letra el parser se encargará de solamente procesar el caracter inicial de aquella sucesión que hubiera elegido el usuario como identificador.
 
-La idea es que el proyecto permita la aplicación sucesiva de funciones utilizando una estructura de datos similar a una lista, la cual revisa si tiene cola después de hacer cada una de las aplicaciones.
+La idea es que el proyecto permita la aplicación sucesiva de funciones utilizando una estructura de datos similar a una lista, la cual revisa si tiene cola después de hacer cada una de las aplicaciones y ver si necesita procesar texto faltante o si puede ya regresar el resultado de aplicar las beta reducciones posibles.
