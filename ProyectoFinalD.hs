@@ -17,8 +17,8 @@ type Parser = Parsec Void String
 
 data Expr
   = Var Char
-  | Abs {var :: Expr, cuerpo :: String}
-  | App {var :: Expr, cuerpo :: String, apli :: Expr} --- , rest :: String}
+  | Abs {var :: Char, cuerpo :: String}
+  | App {var :: Char, cuerpo :: String, apli :: Expr}
   deriving (Eq, Ord, Show)
 
 sust :: Char -> String -> String -> String
@@ -33,8 +33,8 @@ pApp = do
   cuerpo <- M.some alphaNumChar
   void (char ')')
   space1 <?> "Error: Tienes que separar tus términos por al menos un espacio"
-  apli <- try pAbs <|> pVar <?> "Falló parser"
-  return (App (Var vDeLigado) cuerpo apli ) --- Esto ya no funciona porque estaba tratando de hacer la recusión sobre una función básica "ola")
+  apli <- try pAbs <|> pVar <?> "Formato erróneao"
+  return (App vDeLigado cuerpo apli )
 
 pAbs :: Parser Expr
 pAbs = do 
@@ -42,7 +42,7 @@ pAbs = do
   vDeLigado <- alphaNumChar
   void (char '.') <?> "Error: Identificador de más de un character"
   cuerpo <- M.some alphaNumChar <?> "Error: Estás usando characteres especiales en el cuerpo"
-  return (Abs (Var vDeLigado) cuerpo)
+  return (Abs vDeLigado cuerpo)
 
 pVar :: Parser Expr
 pVar = do
@@ -51,10 +51,20 @@ pVar = do
   return (Var var)
 
 
+reduccion :: Expr -> String
+reduccion (Var x) = [x]
+reduccion Abs{var=var,cuerpo=cuerpo} = "(\\"++[var]++"."++cuerpo++")"
+reduccion App{var=var,cuerpo=cuerpo,apli=apli} = sust var red cuerpo
+  where red = reduccion apli
+
+parserLambda :: Parser Expr
+parserLambda = do 
+  try pVar <|> pAbs <|> pApp
+
 
 
 main :: IO ()
 main = do
   putStrLn "Introduce tu abstracción Lambda:"
   linea <- getLine
-  parseTest (single 'a' :: Parser Char) "a"
+  parseTest parserLambda linea
