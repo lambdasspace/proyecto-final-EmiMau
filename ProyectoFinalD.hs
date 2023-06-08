@@ -67,11 +67,3 @@ main = do
   -- por ejemplo (\x.xyz) w 
   linea <- getLine
   parseTest parserLambda linea
-
-
-main :: IO ()
-main = do
-  putStrLn "Introduce tu abstracción Lambda:"
-  linea <- getLine
-  --putStrLn $ reduccion $ print $ parseTest parserLambda linea
-  putStrLn "Programa finalizado"
