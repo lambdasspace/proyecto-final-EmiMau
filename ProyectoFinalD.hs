@@ -16,7 +16,7 @@ import qualified Text.Megaparsec.Char.Lexer as L
 type Parser = Parsec Void String
 
 data Expr
-  = Var Char
+  = Var {var :: Char, rest :: Expr}
   | Abs {var :: Char, cuerpo :: String}
   | App {var :: Char, cuerpo :: String, apli :: Expr}
   deriving (Eq, Ord, Show)
@@ -46,13 +46,14 @@ pAbs = do
 
 pVar :: Parser Expr
 pVar = do
-  void (string "") <?> "Error: Identificador de más de un character"
+  void (string "")
   var <- alphaNumChar
-  return (Var var)
+  rest <- try pVar <|> pAbs <|> pApp
+  return (Var var rest)
 
 
 reduccion :: Expr -> String
-reduccion (Var x) = [x]
+reduccion Var{var=var,rest=rest} = [var] ++ reduccion rest
 reduccion Abs{var=var,cuerpo=cuerpo} = "(\\"++[var]++"."++cuerpo++")"
 reduccion App{var=var,cuerpo=cuerpo,apli=apli} = sust var red cuerpo
   where red = reduccion apli
@@ -67,4 +68,5 @@ main :: IO ()
 main = do
   putStrLn "Introduce tu abstracción Lambda:"
   linea <- getLine
-  parseTest parserLambda linea
+  --putStrLn $ reduccion $ print $ parseTest parserLambda linea
+  putStrLn "Programa finalizado"
