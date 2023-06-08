@@ -18,7 +18,7 @@ type Parser = Parsec Void String
 data Expr
   = Var Char
   | Abs {var :: Expr, cuerpo :: String}
-  | App {var :: Expr, cuerpo :: String, apli :: Expr, rest :: String}
+  | App {var :: Expr, cuerpo :: String, apli :: Expr} --- , rest :: String}
   deriving (Eq, Ord, Show)
 
 sust :: Char -> String -> String -> String
@@ -33,8 +33,8 @@ pApp = do
   cuerpo <- M.some alphaNumChar
   void (char ')')
   space1 <?> "Error: Tienes que separar tus términos por al menos un espacio"
-  apli <- try pApp <|> pAbs <|> pVar <?> "Fallo parser"
-  return (App (Var vDeLigado) cuerpo apli "ola")
+  apli <- try pAbs <|> pVar <?> "Falló parser"
+  return (App (Var vDeLigado) cuerpo apli ) --- Esto ya no funciona porque estaba tratando de hacer la recusión sobre una función básica "ola")
 
 pAbs :: Parser Expr
 pAbs = do 
